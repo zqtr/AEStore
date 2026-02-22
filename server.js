@@ -70,8 +70,14 @@ function ensureDatabase() {
   try { db.exec('ALTER TABLE orders ADD COLUMN payment_id TEXT'); } catch (_) {}
   const adminCount = db.prepare('SELECT COUNT(*) as c FROM admin').get();
   if (adminCount.c === 0) {
-    const hash = bcrypt.hashSync('BOESSAtest', 10);
-    db.prepare('INSERT INTO admin (id, username, password_hash) VALUES (1, ?, ?)').run('admin', hash);
+    const initialPassword = (process.env.ADMIN_INITIAL_PASSWORD || '').trim();
+    if (initialPassword) {
+      const hash = bcrypt.hashSync(initialPassword, 10);
+      db.prepare('INSERT INTO admin (id, username, password_hash) VALUES (1, ?, ?)').run('admin', hash);
+      console.log('Admin user created. Change the password in the dashboard and remove ADMIN_INITIAL_PASSWORD from env.');
+    } else {
+      console.warn('No admin user and ADMIN_INITIAL_PASSWORD not set. Set ADMIN_INITIAL_PASSWORD and restart to create the first admin.');
+    }
   }
   const productCount = db.prepare('SELECT COUNT(*) as c FROM products').get();
   if (productCount.c === 0) {

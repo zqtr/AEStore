@@ -35,11 +35,17 @@ try {
   db.exec('ALTER TABLE products ADD COLUMN paddle_price_id TEXT');
 } catch (_) {}
 
-const hash = bcrypt.hashSync('BOESSAtest', 10);
-db.prepare(`
-  INSERT OR REPLACE INTO admin (id, username, password_hash) 
-  VALUES (1, 'admin', ?)
-`).run(hash);
+const initialPassword = (process.env.ADMIN_INITIAL_PASSWORD || '').trim();
+if (initialPassword) {
+  const hash = bcrypt.hashSync(initialPassword, 10);
+  db.prepare(`
+    INSERT OR REPLACE INTO admin (id, username, password_hash) 
+    VALUES (1, 'admin', ?)
+  `).run(hash);
+  console.log('Admin user set. Username: admin');
+} else {
+  console.warn('Set ADMIN_INITIAL_PASSWORD to create or reset the admin user.');
+}
 
 const products = [
   { name_ar: 'بكجات · كميونتي', name_en: 'Community Packages', emoji: '💼', category: 'general', price: 49.99, description: 'Packages for community platforms and branding.', sort_order: 1 },
@@ -67,5 +73,4 @@ if (count.c === 0) {
   console.log('Seeded', products.length, 'products.');
 }
 
-console.log('Admin: admin / BOESSAtest');
 db.close();
