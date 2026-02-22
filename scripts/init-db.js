@@ -48,18 +48,21 @@ if (initialPassword) {
 }
 
 const products = [
-  { name_ar: 'بكجات · كميونتي', name_en: 'Community Packages', emoji: '💼', category: 'general', price: 49.99, description: 'Packages for community platforms and branding.', sort_order: 1 },
-  { name_ar: 'بكج · ستريمر', name_en: 'Streamer Package', emoji: '📽️', category: 'general', price: 59.99, description: 'Overlays, alerts, and channel art for streamers.', sort_order: 2 },
-  { name_ar: 'شعار متحرك', name_en: 'Animated Logo', emoji: '🎨', category: 'general', price: 79.99, description: 'Custom animated logo design.', sort_order: 3 },
-  { name_ar: 'شعارات · احرف', name_en: 'Logos · Letters', emoji: '🔠', category: 'general', price: 39.99, description: 'Typography and letter-based logo designs.', sort_order: 4 },
-  { name_ar: 'تصميم باقات', name_en: 'Design Packages', emoji: '✨', category: 'general', price: 69.99, description: 'Premium design bundles and custom packages.', sort_order: 5 },
-  { name_ar: 'بكجات · فايف . ام', name_en: 'FiveM Packages', emoji: '💼', category: 'fivem', price: 54.99, description: 'General FiveM asset bundles.', sort_order: 6 },
-  { name_ar: 'انذارات · فايف · ام', name_en: 'FiveM Alerts', emoji: '⚠️', category: 'fivem', price: 34.99, description: 'In-game alerts and notification graphics.', sort_order: 7 },
-  { name_ar: 'اعلانات · فايف . ام', name_en: 'FiveM Advertisements', emoji: '📰', category: 'fivem', price: 44.99, description: 'Ad and promotional graphics for FiveM.', sort_order: 8 },
-  { name_ar: 'ايقونات · قراجات', name_en: 'Icons · Garages', emoji: '🚗', category: 'fivem', price: 29.99, description: 'Garage and vehicle icons for FiveM.', sort_order: 9 },
-  { name_ar: 'تسجيل دخول', name_en: 'Login', emoji: '🦸', category: 'fivem', price: 49.99, description: 'Login screen and auth UI graphics.', sort_order: 10 },
-  { name_ar: 'لودينق . سكرين', name_en: 'Loading Screen', emoji: '🎬', category: 'fivem', price: 64.99, description: 'Loading screen designs for FiveM.', sort_order: 11 },
-  { name_ar: 'تصميم · روك · ستار', name_en: 'Design · Rockstar', emoji: '📽️', category: 'fivem', price: 74.99, description: 'Rockstar-themed design assets for FiveM.', sort_order: 12 },
+  { name_ar: 'شعار متحرك احترافي', name_en: 'Professional Animated Logo', emoji: '🎨', category: 'general', price: 120, description: 'شعار متحرك احترافي.', sort_order: 1 },
+  { name_ar: 'شعار الاحرف احترافي', name_en: 'Professional Letter Logo', emoji: '🔠', category: 'general', price: 100, description: 'شعار الاحرف احترافي.', sort_order: 2 },
+  { name_ar: 'بكج كميونتي', name_en: 'Community Package', emoji: '💼', category: 'general', price: 165, description: 'بكج كميونتي.', sort_order: 3 },
+  { name_ar: 'بكج ستريمر', name_en: 'Streamer Package', emoji: '📽️', category: 'general', price: 135, description: 'بكج ستريمر.', sort_order: 4 },
+  { name_ar: 'تصميم باقات', name_en: 'Design Packages', emoji: '✨', category: 'general', price: 50, description: 'تصميم باقات حسب الطلب.', sort_order: 5 },
+  { name_ar: 'انذار فايف ام احترافي', name_en: 'Professional FiveM Alert', emoji: '⚠️', category: 'fivem', price: 100, description: 'انذار فايف ام احترافي.', sort_order: 6 },
+  { name_ar: 'بكج فايف ام برونز', name_en: 'FiveM Package Bronze', emoji: '💼', category: 'fivem', price: 200, description: 'بكج فايف ام برونز.', sort_order: 7 },
+  { name_ar: 'بكج فايف ام سلفر', name_en: 'FiveM Package Silver', emoji: '💼', category: 'fivem', price: 300, description: 'بكج فايف ام سلفر.', sort_order: 8 },
+  { name_ar: 'بكج فايف ام قولد', name_en: 'FiveM Package Gold', emoji: '💼', category: 'fivem', price: 500, description: 'بكج فايف ام قولد.', sort_order: 9 },
+  { name_ar: 'اعلان فايف ام ثابت', name_en: 'FiveM Ad Static', emoji: '📰', category: 'fivem', price: 10, description: 'اعلان ثابت — السعر للصورة.', sort_order: 10 },
+  { name_ar: 'اعلان فايف ام متحرك', name_en: 'FiveM Ad Animated', emoji: '📰', category: 'fivem', price: 20, description: 'اعلان متحرك.', sort_order: 11 },
+  { name_ar: 'ايقونات قراجات', name_en: 'Garage Icons', emoji: '🚗', category: 'fivem', price: 13, description: 'القراج الواحد ١٣ ريال.', sort_order: 12 },
+  { name_ar: 'تسجيل دخول ثابت', name_en: 'Login Static', emoji: '🦸', category: 'fivem', price: 15, description: 'تسجيل دخول ثابت.', sort_order: 13 },
+  { name_ar: 'تسجيل دخول متحرك', name_en: 'Login Animated', emoji: '🦸', category: 'fivem', price: 30, description: 'تسجيل دخول متحرك.', sort_order: 14 },
+  { name_ar: 'لودينق سكرين', name_en: 'Loading Screen', emoji: '🎬', category: 'fivem', price: 120, description: 'لودينق سكرين.', sort_order: 15 },
 ];
 
 const insert = db.prepare(`

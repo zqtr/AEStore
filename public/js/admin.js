@@ -97,7 +97,7 @@
             <td>${escapeHtml(p.name_en)}</td>
             <td>${escapeHtml(p.name_ar)}</td>
             <td>${escapeHtml(p.category)}</td>
-            <td>$${Number(p.price).toFixed(2)}</td>
+            <td>QAR ${Number(p.price).toFixed(2)}</td>
             <td class="actions">
               <button type="button" class="btn btn-secondary edit-product" data-id="${p.id}">Edit</button>
               <button type="button" class="btn btn-danger delete-product" data-id="${p.id}">Delete</button>
@@ -228,7 +228,7 @@
               <td>${escapeHtml(o.customer_name)}</td>
               <td>${escapeHtml(o.customer_email)}</td>
               <td>${escapeHtml(itemList)}</td>
-              <td>$${Number(o.total).toFixed(2)}</td>
+              <td>QAR ${Number(o.total).toFixed(2)}</td>
               <td>${escapeHtml(o.status)}</td>
               <td class="actions">
                 <select class="order-status-select" data-id="${o.id}" style="padding:0.3rem 0.5rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.8rem">

@@ -7,10 +7,8 @@ const cart = getStoredCart();
 /* ---- DOM refs ---- */
 const gridGeneral = document.getElementById('grid-general');
 const gridFivem = document.getElementById('grid-fivem');
-const gridRamadan = document.getElementById('grid-ramadan');
 const countGeneral = document.getElementById('count-general');
 const countFivem = document.getElementById('count-fivem');
-const countRamadan = document.getElementById('count-ramadan');
 
 const openCartBtn = document.getElementById('open-cart');
 const closeCartBtn = document.getElementById('close-cart');
@@ -100,15 +98,12 @@ async function init() {
 
     const general = data.filter(p => p.category === 'general');
     const fivem = data.filter(p => p.category === 'fivem');
-    const ramadan = data.filter(p => p.category === 'ramadan');
 
     if(countGeneral) countGeneral.textContent = `[${general.length}]`;
     if(countFivem) countFivem.textContent = `[${fivem.length}]`;
-    if(countRamadan) countRamadan.textContent = `[${ramadan.length}]`;
 
     if(gridGeneral) general.forEach((p, i) => gridGeneral.appendChild(createCard(p, i)));
     if(gridFivem) fivem.forEach((p, i) => gridFivem.appendChild(createCard(p, i)));
-    if(gridRamadan) ramadan.forEach((p, i) => gridRamadan.appendChild(createCard(p, i)));
 
     updateCartUI();
     observeCards();
@@ -117,7 +112,7 @@ async function init() {
   } catch(e) {
     console.error(e);
     const main = document.querySelector('main');
-    if(main) main.innerHTML = '<p class="error-msg" style="text-align:center;padding:4rem 0">SYSTEM ERROR: UNABLE TO LOAD PRODUCTS</p>';
+    if(main) main.innerHTML = '<p class="error-msg" style="text-align:center;padding:4rem 0">خطأ: تعذر تحميل المنتجات</p>';
   }
 }
 
@@ -167,22 +162,22 @@ function createCard(p, idx) {
         : `<img src="${escapeAttr(firstMedia)}" alt="${escapeAttr(p.name_en)}" loading="lazy">`)
     : `<img src="${PLACEHOLDER_IMAGE}" alt="${escapeAttr(p.name_en)}" loading="lazy">`;
 
-  const catLabel = p.category === 'fivem' ? 'FIVEM' : p.category === 'ramadan' ? 'RAMADAN' : 'GENERAL';
+  const catLabel = p.category === 'fivem' ? 'فايف ام' : 'عام';
   const productUrl = `/product?id=${p.id}`;
 
   card.innerHTML = `
     <div class="card-img">
-      <a href="${productUrl}" class="card-img-link" aria-label="VIEW ${escapeAttr(p.name_en)}">${mediaHtml}</a>
+      <a href="${productUrl}" class="card-img-link" aria-label="معاينة ${escapeAttr(p.name_ar || p.name_en)}">${mediaHtml}</a>
       <span class="card-cat">[${catLabel}]</span>
     </div>
     <div class="card-body">
-      <h3><a href="${productUrl}" class="card-title-link">${escapeAttr(p.name_en).toUpperCase()}</a></h3>
-      <div class="desc">${(p.description || '').toUpperCase()}</div>
+      <h3><a href="${productUrl}" class="card-title-link">${escapeAttr(p.name_ar || p.name_en)}</a></h3>
+      <div class="desc">${escapeAttr(p.description || '')}</div>
       <div class="card-foot">
-        <span class="card-price">$${Number(p.price).toFixed(2)}</span>
+        <span class="card-price">QAR ${Number(p.price).toFixed(2)}</span>
         <div class="card-actions">
-          <button class="btn-sm btn-ghost btn-preview" title="PREVIEW">PREV</button>
-          <button class="btn-sm btn-add btn-order" data-id="${p.id}">ADD</button>
+          <button class="btn-sm btn-ghost btn-preview" title="معاينة">معاينة</button>
+          <button class="btn-sm btn-add btn-order" data-id="${p.id}">أضف</button>
         </div>
       </div>
     </div>
@@ -201,7 +196,7 @@ function handlePreview(p) {
     if (links.length) { window.open(links[0], '_blank'); return; }
   }
   if (p.image_url) { window.open(p.image_url, '_blank'); return; }
-  alert('NO PREVIEW DATA FOUND');
+  alert('لا توجد روابط معاينة');
 }
 
 /* ---- Cart Logic ---- */
@@ -217,7 +212,7 @@ function addToCart(product, btn) {
   if (exists) { openCart(); return; }
   cart.push({
     product_id: product.id,
-    name: product.name_en,
+    name: product.name_ar || product.name_en,
     variant: null,
     emoji: product.emoji,
     price: product.price,
@@ -229,7 +224,7 @@ function addToCart(product, btn) {
   btn.classList.add('added');
   setTimeout(() => {
     btn.classList.remove('added');
-    btn.innerHTML = `ADD`;
+    btn.innerHTML = `أضف`;
   }, 1500);
   updateCartUI();
 }
@@ -241,23 +236,23 @@ function updateCartUI() {
     cartCountEl.classList.toggle('empty', count === 0);
   }
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  if(drawerTotalVal) drawerTotalVal.textContent = `$${total.toFixed(2)}`;
+  if(drawerTotalVal) drawerTotalVal.textContent = `QAR ${total.toFixed(2)}`;
   if(btnCheckout) btnCheckout.disabled = count === 0;
 }
 
 function renderDrawerItems() {
   if (!drawerItems) return;
   if (cart.length === 0) {
-    drawerItems.innerHTML = '<div class="drawer-empty">INVENTORY EMPTY</div>';
+    drawerItems.innerHTML = '<div class="drawer-empty">السلة فارغة</div>';
     return;
   }
   drawerItems.innerHTML = cart.map((i, index) => `
     <div class="drawer-item">
       <div class="drawer-item-emoji">${i.emoji}</div>
       <div class="drawer-item-info">
-        <h4>${i.name.toUpperCase()}</h4>
-        ${i.variant ? `<div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:0.25rem;">[ ${i.variant.toUpperCase()} ]</div>` : ''}
-        <div class="di-price">$${Number(i.price).toFixed(2)}</div>
+        <h4>${escapeAttr(i.name)}</h4>
+        ${i.variant ? `<div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:0.25rem;">[ ${escapeAttr(i.variant)} ]</div>` : ''}
+        <div class="di-price">QAR ${Number(i.price).toFixed(2)}</div>
       </div>
       <button class="drawer-item-remove" data-index="${index}">[X]</button>
     </div>
@@ -300,26 +295,25 @@ function showCheckoutForm() {
   const isReady = allItemsHavePaddlePrice();
 
   checkoutContent.innerHTML = `
-    <h2>CHECKOUT</h2>
+    <h2>إتمام الطلب</h2>
     <div class="order-summary">
-      ${cart.map(i => `<div class="os-item"><span>${i.name.toUpperCase()}${i.variant ? ` [${i.variant.toUpperCase()}]` : ''}</span><span>$${Number(i.price).toFixed(2)}</span></div>`).join('')}
-      <div class="os-total"><span>TOTAL</span><span>$${total.toFixed(2)}</span></div>
+      ${cart.map(i => `<div class="os-item"><span>${escapeAttr(i.name)}${i.variant ? ` [${escapeAttr(i.variant)}]` : ''}</span><span>QAR ${Number(i.price).toFixed(2)}</span></div>`).join('')}
+      <div class="os-total"><span>المجموع</span><span>QAR ${total.toFixed(2)}</span></div>
     </div>
     <form id="checkout-form">
       <div class="form-row">
         <div class="form-group">
-          <label>PLAYER NAME</label>
-          <input type="text" id="co-name" required placeholder="NAME">
+          <label>الاسم</label>
+          <input type="text" id="co-name" required placeholder="الاسم">
         </div>
         <div class="form-group">
-          <label>CONTACT EMAIL</label>
-          <input type="email" id="co-email" required placeholder="EMAIL">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="co-email" required placeholder="البريد">
         </div>
       </div>
-      ${isReady ? '' : `<p class="subtitle" style="margin-top:0.75rem;">This cart has items not configured for Paddle checkout yet. Add a Paddle <code>priceId</code> to each product in Admin.</p>`}
       <div id="co-error" class="error-msg hidden"></div>
-      <button type="button" class="btn-submit" id="btn-pay-paddle" ${isReady ? '' : 'disabled'}>PAY WITH PADDLE</button>
-      <button type="button" class="btn-close-modal" id="btn-cancel-co">[ CANCEL ]</button>
+      <button type="button" class="btn-submit" id="btn-pay-paddle" ${isReady ? '' : 'disabled'}>الدفع</button>
+      <button type="button" class="btn-close-modal" id="btn-cancel-co">[ إلغاء ]</button>
     </form>
   `;
   checkoutOverlay.classList.remove('hidden');
@@ -341,11 +335,11 @@ async function handlePaddleCheckout() {
   const email = emailEl ? emailEl.value.trim() : '';
 
   if (!name || !email) {
-    if (errEl) { errEl.textContent = 'ERROR: MISSING DATA'; errEl.classList.remove('hidden'); }
+    if (errEl) { errEl.textContent = 'أدخل الاسم والبريد الإلكتروني'; errEl.classList.remove('hidden'); }
     return;
   }
   if (!allItemsHavePaddlePrice()) {
-    if (errEl) { errEl.textContent = 'Some items are not configured for Paddle payment yet. Set Paddle price ID for every product in Admin.'; errEl.classList.remove('hidden'); }
+    if (errEl) { errEl.textContent = ''; errEl.classList.remove('hidden'); }
     return;
   }
   if (payBtn) payBtn.disabled = true;
@@ -373,11 +367,11 @@ async function handlePaddleCheckout() {
         customer_name: name,
         customer_email: email,
       },
-      settings: { displayMode: 'overlay', theme: 'dark', locale: 'en' },
+      settings: { displayMode: 'overlay', theme: 'dark', locale: 'ar' },
     });
   } catch (err) {
     if (payBtn) payBtn.disabled = false;
-    let msg = err && err.message ? err.message : 'TRANSACTION FAILED';
+    let msg = err && err.message ? err.message : 'فشلت العملية';
     if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
   }
 }
@@ -389,15 +383,15 @@ function showOrderSuccess(order) {
 
   document.querySelectorAll('.btn-add').forEach(btn => {
     btn.classList.remove('added');
-    btn.innerHTML = `ADD`;
+    btn.innerHTML = `أضف`;
   });
 
   checkoutContent.innerHTML = `
     <div style="text-align:center;padding:1.5rem 0">
-      <h2 style="margin-bottom:0.5rem;color:var(--success);">MISSION CLEAR</h2>
-      <p class="subtitle">ORDER REF: ${order.order_id}</p>
-      <p style="color:var(--white);font-size:1.2rem;margin-bottom:1.5rem">SCORE: <strong>$${Number(order.total).toFixed(2)}</strong></p>
-      <button class="btn-submit" id="btn-close-success" style="margin-bottom:0.5rem">CONTINUE</button>
+      <h2 style="margin-bottom:0.5rem;color:var(--success);">تم الطلب بنجاح</h2>
+      <p class="subtitle">رقم الطلب: ${order.order_id}</p>
+      <p style="color:var(--white);font-size:1.2rem;margin-bottom:1.5rem">المجموع: <strong>QAR ${Number(order.total).toFixed(2)}</strong></p>
+      <button class="btn-submit" id="btn-close-success" style="margin-bottom:0.5rem">متابعة</button>
     </div>
   `;
   document.getElementById('btn-close-success').addEventListener('click', () => {
@@ -428,7 +422,6 @@ function observeCards() {
 /* ---- Category tabs ---- */
 function setupCategoryTabs() {
   const tabs = document.querySelectorAll('.cat-tab');
-  const ramadanSection = document.getElementById('ramadan');
   const sections = { general: document.getElementById('general'), fivem: document.getElementById('fivem') };
 
   tabs.forEach(tab => {
@@ -438,19 +431,12 @@ function setupCategoryTabs() {
       tab.classList.add('active');
 
       if (cat === 'all') {
-        if(ramadanSection) ramadanSection.classList.remove('hidden');
         if(sections.general) sections.general.classList.remove('hidden');
         if(sections.fivem) sections.fivem.classList.remove('hidden');
-      } else if (cat === 'ramadan') {
-        if(ramadanSection) ramadanSection.classList.remove('hidden');
-        if(sections.general) sections.general.classList.add('hidden');
-        if(sections.fivem) sections.fivem.classList.add('hidden');
       } else if (cat === 'general') {
-        if(ramadanSection) ramadanSection.classList.add('hidden');
         if(sections.general) sections.general.classList.remove('hidden');
         if(sections.fivem) sections.fivem.classList.add('hidden');
       } else {
-        if(ramadanSection) ramadanSection.classList.add('hidden');
         if(sections.general) sections.general.classList.add('hidden');
         if(sections.fivem) sections.fivem.classList.remove('hidden');
       }

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AE Store — Graphics Packages</title>
+  <title>متجر أي أي — باقات جرافيك</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Google Fonts: VT323 for terminal look, Silkscreen for headings -->
-  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -21,15 +21,14 @@
   <!-- Header -->
   <header class="header">
     <div class="container">
-      <a href="/" class="logo">AE STORE</a>
+      <a href="/" class="logo logo-img"><img src="https://pub-393fe5faed714d56b0f673884ec898c5.r2.dev/LOGO.png" alt="AE Store"></a>
       <nav class="header-nav">
-        <a href="#ramadan">RAMADAN</a>
-        <a href="#general">GENERAL</a>
-        <a href="#fivem">FIVEM</a>
+        <a href="#general">عام</a>
+        <a href="#fivem">فايف ام</a>
         <button type="button" class="cart-btn" id="open-cart">
-          [ CART : <span class="cart-count empty" id="cart-count">0</span> ]
+          [ السلة : <span class="cart-count empty" id="cart-count">0</span> ]
         </button>
-        <a href="/admin">ADMIN</a>
+        <a href="/admin">الإدارة</a>
       </nav>
     </div>
   </header>
@@ -37,27 +36,13 @@
   <!-- Hero -->
   <section class="hero">
     <div class="container">
-      <span class="hero-badge">INSERT COIN TO CONTINUE</span>
-      <h1 class="glitch-text" data-text="PROFESSIONAL DESIGN PACKAGES">PROFESSIONAL DESIGN<br>PACKAGES</h1>
-      <p>ORDER HIGH-QUALITY GRAPHIC DESIGN PACKAGES FOR YOUR BRAND, COMMUNITY, OR FIVEM SERVER.</p>
+      <img src="https://pub-393fe5faed714d56b0f673884ec898c5.r2.dev/BANNER.jpg" alt="" class="hero-banner">
+      <span class="hero-badge">أهلاً في أي ستور !</span>
       <div class="cat-tabs">
-        <button class="cat-tab active" data-cat="all">ALL</button>
-        <button class="cat-tab" data-cat="ramadan">RAMADAN</button>
-        <button class="cat-tab" data-cat="general">GENERAL</button>
-        <button class="cat-tab" data-cat="fivem">FIVEM</button>
+        <button class="cat-tab active" data-cat="all">الكل</button>
+        <button class="cat-tab" data-cat="general">عام</button>
+        <button class="cat-tab" data-cat="fivem">فايف ام</button>
       </div>
-    </div>
-  </section>
-
-  <!-- Ramadan Section -->
-  <section class="ramadan-section" id="ramadan">
-    <div class="container ramadan-inner">
-      <h2 class="ramadan-title">RAMADAN SPECIAL</h2>
-      <div class="section-head ramadan-section-head">
-        <h2 class="ramadan-heading">LIMITED PACKAGES</h2>
-        <span class="badge" id="count-ramadan"></span>
-      </div>
-      <div class="grid grid-ramadan" id="grid-ramadan"></div>
     </div>
   </section>
 
@@ -65,7 +50,7 @@
   <main class="container">
     <section class="store-section" id="general">
       <div class="section-head">
-        <h2>GENERAL PACKAGES</h2>
+        <h2>البكجات العامة</h2>
         <span class="badge" id="count-general"></span>
       </div>
       <div class="grid" id="grid-general"></div>
@@ -73,7 +58,7 @@
 
     <section class="store-section" id="fivem">
       <div class="section-head">
-        <h2>FIVEM PACKAGES</h2>
+        <h2>بكجات فايف ام</h2>
         <span class="badge" id="count-fivem"></span>
       </div>
       <div class="grid" id="grid-fivem"></div>
@@ -84,16 +69,16 @@
   <div class="drawer-overlay" id="drawer-overlay"></div>
   <aside class="drawer" id="drawer">
     <div class="drawer-head">
-      <h2>INVENTORY</h2>
+      <h2>السلة</h2>
       <button class="drawer-close" id="close-cart">[X]</button>
     </div>
     <div class="drawer-items" id="drawer-items"></div>
     <div class="drawer-footer" id="drawer-footer">
       <div class="drawer-total">
-        <span>SCORE:</span>
-        <span id="drawer-total-val">$0.00</span>
+        <span>المجموع:</span>
+        <span id="drawer-total-val">QAR 0.00</span>
       </div>
-      <button class="btn-checkout" id="btn-checkout" disabled>PROCEED TO CHECKOUT</button>
+      <button class="btn-checkout" id="btn-checkout" disabled>إتمام الطلب</button>
     </div>
   </aside>
 
@@ -107,7 +92,7 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
-      <p>&copy; 2026 AE STORE. ALL RIGHTS RESERVED. · <a href="/terms">TERMS</a> · <a href="/privacy">PRIVACY</a> · <a href="/refunds">REFUNDS</a></p>
+      <p>&copy; 2026 أي ستور. جميع الحقوق محفوظة. · <a href="/terms">الشروط</a> · <a href="/privacy">الخصوصية</a> · <a href="/refunds">الاسترجاع</a></p>
     </div>
   </footer>
 

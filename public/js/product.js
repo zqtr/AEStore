@@ -133,11 +133,11 @@ function renderProduct(p) {
   const productTitleAr = document.getElementById('product-title-ar');
   const productDesc = document.getElementById('product-desc');
   const productPrice = document.getElementById('product-price');
-  if (productCat) productCat.textContent = p.category === 'fivem' ? 'FiveM' : p.category === 'ramadan' ? 'Ramadan' : 'General';
-  if (productTitle) productTitle.textContent = p.name_en;
-  if (productTitleAr) productTitleAr.textContent = p.name_ar || '';
-  if (productDesc) productDesc.textContent = p.description || 'No description.';
-  if (productPrice) productPrice.textContent = `$${Number(p.price).toFixed(2)}`;
+  if (productCat) productCat.textContent = p.category === 'fivem' ? 'فايف ام' : 'عام';
+  if (productTitle) productTitle.textContent = p.name_ar || p.name_en;
+  if (productTitleAr) productTitleAr.textContent = (p.name_ar && p.name_en) ? p.name_en : '';
+  if (productDesc) productDesc.textContent = p.description || 'لا يوجد وصف.';
+  if (productPrice) productPrice.textContent = `QAR ${Number(p.price).toFixed(2)}`;
 
   let varArr = p.variants;
   if (typeof varArr === 'string') try { varArr = JSON.parse(varArr); } catch (_) { varArr = []; }
@@ -179,7 +179,7 @@ function renderProduct(p) {
     }
     cart.push({
       product_id: p.id,
-      name: p.name_en,
+      name: p.name_ar || p.name_en,
       variant: variant,
       emoji: p.emoji,
       price: p.price,
@@ -197,10 +197,10 @@ function renderProduct(p) {
       if (links.length) { window.open(links[0], '_blank'); return; }
     }
     if (media.length) window.open(media[0], '_blank');
-    else alert('No preview available.');
+    else alert('لا توجد معاينة.');
   };
 
-  document.title = `${p.name_en} — AE Store`;
+  document.title = `${p.name_ar || p.name_en} — أي ستور`;
 }
 
 updateCartBadge();
