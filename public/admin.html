@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — AE Graphics Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="login-view" class="admin-wrap">
+    <div class="login-box">
+      <h1>Admin login</h1>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" value="admin" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password">
+        </div>
+        <p id="login-error" class="error-msg hidden"></p>
+        <button type="submit" class="btn btn-primary">Sign in</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard-view" class="dashboard hidden">
+    <header class="dashboard-header">
+      <h1>Admin dashboard</h1>
+      <div class="dashboard-nav">
+        <a href="/" class="btn btn-secondary">View store</a>
+        <button type="button" class="btn btn-secondary" id="btn-change-password">Change password</button>
+        <button type="button" class="btn btn-secondary" id="btn-logout">Log out</button>
+      </div>
+    </header>
+
+    <section class="dashboard-section">
+      <h2>Products</h2>
+      <button type="button" class="btn btn-primary" id="btn-add-product" style="margin-bottom: 1rem;">Add product</button>
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Emoji</th>
+              <th>Name (EN)</th>
+              <th>Name (AR)</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="dashboard-section">
+      <h2>Orders</h2>
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Initials</th>
+              <th>Customer</th>
+              <th>Email</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="modal-product" class="modal-overlay hidden">
+    <div class="modal">
+      <h3 id="modal-product-title">Edit product</h3>
+      <form id="form-product">
+        <input type="hidden" id="product-id">
+        <div class="form-group">
+          <label for="product-emoji">Emoji</label>
+          <input type="text" id="product-emoji" placeholder="💼" maxlength="4">
+        </div>
+        <div class="form-group">
+          <label for="product-name-en">Name (English)</label>
+          <input type="text" id="product-name-en" required>
+        </div>
+        <div class="form-group">
+          <label for="product-name-ar">Name (Arabic)</label>
+          <input type="text" id="product-name-ar" dir="rtl">
+        </div>
+        <div class="form-group">
+          <label for="product-category">Category</label>
+          <select id="product-category">
+            <option value="general">General</option>
+            <option value="fivem">FiveM</option>
+            <option value="ramadan">Ramadan</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="product-price">Price ($)</label>
+          <input type="number" id="product-price" step="0.01" min="0" required>
+        </div>
+        <div class="form-group">
+          <label for="product-description">Description</label>
+          <input type="text" id="product-description">
+        </div>
+        <div class="form-group">
+          <label for="product-image-url">Main image or video URL</label>
+          <input type="url" id="product-image-url" placeholder="https://example.com/image.jpg or .mp4">
+          <small style="color: var(--text-muted); font-size: 0.8rem;">Image or video (e.g. .mp4, .webm) shown on the product card. Use a direct link.</small>
+        </div>
+        <div class="form-group">
+          <label for="product-images">More image/video URLs (one per line)</label>
+          <textarea id="product-images" rows="4" placeholder="https://example.com/image2.jpg&#10;https://example.com/video.mp4"></textarea>
+          <small style="color: var(--text-muted); font-size: 0.8rem;">Extra images and videos for the product page gallery. MP4 and WebM are supported.</small>
+        </div>
+        <div class="form-group">
+          <label for="product-variants">Variants (one per line, max 5)</label>
+          <textarea id="product-variants" rows="3" placeholder="e.g. Standard&#10;Premium&#10;Ultra"></textarea>
+          <small style="color: var(--text-muted); font-size: 0.8rem;">Optional. Up to 5 variations the user can choose from on the product page.</small>
+        </div>
+        <div class="form-group">
+          <label for="product-paddle-price-id">Paddle price ID</label>
+          <input type="text" id="product-paddle-price-id" placeholder="e.g. pri_01gm81eqze2vmmvhpjg13bfeqg">
+          <small style="color: var(--text-muted); font-size: 0.8rem;">Required for payment. Get this from Paddle dashboard (Price ID starts with <code>pri_</code>).</small>
+        </div>
+        <div class="form-group">
+          <label for="product-preview-links">Preview / example links</label>
+          <textarea id="product-preview-links" rows="3" placeholder="One URL per line (e.g. Discord links)"></textarea>
+          <small style="color: var(--text-muted); font-size: 0.8rem;">Shown as &quot;View examples&quot; on the product card.</small>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-secondary" id="btn-cancel-product">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-password" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>Change password</h3>
+      <form id="form-password">
+        <div class="form-group">
+          <label for="current-password">Current password</label>
+          <input type="password" id="current-password" required autocomplete="current-password">
+        </div>
+        <div class="form-group">
+          <label for="new-password">New password</label>
+          <input type="password" id="new-password" required minlength="6" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirm new password</label>
+          <input type="password" id="confirm-password" required minlength="6" autocomplete="new-password">
+        </div>
+        <p id="password-error" class="error-msg hidden"></p>
+        <p id="password-success" class="success-msg hidden">Password updated.</p>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Update password</button>
+          <button type="button" class="btn btn-secondary" id="btn-cancel-password">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

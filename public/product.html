@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product — AE Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <div class="retro-bg">
+    <div class="scanlines"></div>
+  </div>
+
+  <header class="header">
+    <div class="container">
+      <a href="/" class="logo">AE STORE</a>
+      <nav class="header-nav">
+        <a href="/#ramadan">RAMADAN</a>
+        <a href="/#general">GENERAL</a>
+        <a href="/#fivem">FIVEM</a>
+        <a href="/#cart" class="cart-btn" id="cart-link">
+          [ CART : <span class="cart-count empty" id="cart-count">0</span> ]
+        </a>
+        <a href="/admin">ADMIN</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container product-page">
+    <a href="/" class="back-link" id="back-link">< RETURN</a>
+    <div id="product-loading" class="product-loading">LOADING...</div>
+    <div id="product-error" class="product-error hidden">ERROR LOADING DATA</div>
+    <div id="product-content" class="product-root hidden">
+      <div class="product-gallery">
+        <div class="product-main-img-wrap" id="main-img-wrap">
+          <img id="product-main-img" class="product-main-img hidden" alt="">
+          <video id="product-main-video" class="product-main-video hidden" muted playsinline preload="metadata"></video>
+          <div class="product-main-placeholder" id="product-main-placeholder">NO SIGNAL</div>
+        </div>
+        <div class="product-thumbs" id="product-thumbs"></div>
+      </div>
+      <div class="product-detail">
+        <span class="product-cat-badge" id="product-cat"></span>
+        <h1 class="product-title" id="product-title"></h1>
+        <div class="product-title-ar" id="product-title-ar"></div>
+        <div class="product-desc" id="product-desc"></div>
+        <div class="product-variants-block hidden" id="product-variants-block" style="margin-bottom: 1.5rem;">
+          <label for="product-variants" style="display:block; margin-bottom:0.5rem; font-size:1.1rem;">SELECT VARIANT:</label>
+          <select id="product-variants" class="product-variants-select" style="width:100%; padding:0.8rem; background:var(--bg); border:2px solid var(--border); color:var(--white); font-family:inherit; font-size:1.1rem;"></select>
+        </div>
+        <div class="product-price-block">
+          <div class="product-price" id="product-price"></div>
+        </div>
+        <div class="product-actions-block">
+          <button class="btn btn-primary" id="btn-add-cart">ADD TO CART</button>
+          <button class="btn btn-secondary" id="btn-preview">PREVIEW</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 AE STORE</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/product.js"></script>
+</body>
+</html>
