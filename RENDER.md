@@ -15,7 +15,7 @@ In Render → your Web Service → **Environment**, add:
 | `PORT` | *(optional)* | Render sets this automatically. |
 | `PADDLE_CLIENT_TOKEN` | Your token | Use `test_...` for sandbox or `live_...` for production. |
 | `SESSION_SECRET` | *(recommended)* | A long random string for admin session cookies. If omitted, a random one is generated per deploy. |
-| `ADMIN_INITIAL_PASSWORD` | Your choice | Required for first deploy (no admin exists yet). Set a strong password; after first login change it in the dashboard and you can remove this from Render env. |
+| `ADMIN_INITIAL_PASSWORD` | Your choice | Creates the first admin if none exists. If an admin already exists (e.g. from a pushed DB), setting this **resets** the admin password to this value on startup. Set it, redeploy, log in as `admin` with that password, then remove it from env. |
 
 To reuse your local `.env`: in Render click **Add from .env** and paste the contents (remove or redact any secrets you don’t want on Render).
 

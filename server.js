@@ -69,8 +69,8 @@ function ensureDatabase() {
   try { db.exec('ALTER TABLE orders ADD COLUMN payment_provider TEXT'); } catch (_) {}
   try { db.exec('ALTER TABLE orders ADD COLUMN payment_id TEXT'); } catch (_) {}
   const adminCount = db.prepare('SELECT COUNT(*) as c FROM admin').get();
+  const initialPassword = (process.env.ADMIN_INITIAL_PASSWORD || '').trim();
   if (adminCount.c === 0) {
-    const initialPassword = (process.env.ADMIN_INITIAL_PASSWORD || '').trim();
     if (initialPassword) {
       const hash = bcrypt.hashSync(initialPassword, 10);
       db.prepare('INSERT INTO admin (id, username, password_hash) VALUES (1, ?, ?)').run('admin', hash);
@@ -78,6 +78,10 @@ function ensureDatabase() {
     } else {
       console.warn('No admin user and ADMIN_INITIAL_PASSWORD not set. Set ADMIN_INITIAL_PASSWORD and restart to create the first admin.');
     }
+  } else if (initialPassword) {
+    const hash = bcrypt.hashSync(initialPassword, 10);
+    db.prepare('UPDATE admin SET password_hash = ? WHERE username = ?').run(hash, 'admin');
+    console.log('Admin password reset from ADMIN_INITIAL_PASSWORD. Remove it from env after logging in.');
   }
   const productCount = db.prepare('SELECT COUNT(*) as c FROM products').get();
   if (productCount.c === 0) {
