@@ -200,7 +200,7 @@ function renderProduct(p) {
     else alert('لا توجد معاينة.');
   };
 
-  document.title = `${p.name_ar || p.name_en} — أي ستور`;
+  document.title = `${p.name_ar || p.name_en} — AE STORE`;
 }
 
 updateCartBadge();
