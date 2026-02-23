@@ -21,12 +21,12 @@ A graphics selling store with a customizable admin dashboard.
 
 4. Open in browser:
    - **Store:** http://localhost:3000
-   - **Admin:** http://localhost:3000/admin
+   - **Admin:** `*******`
 
 ## Admin login
 
 - **Username:** `admin`
-- **Password:** `BOESSAtest`
+- **Password:** `*******`
 
 Change the password after first login via **Admin → Change password**.
 
