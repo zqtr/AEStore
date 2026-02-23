@@ -141,6 +141,12 @@ app.get('/', (req, res) => {
 });
 
 const PADDLE_CLIENT_TOKEN = (process.env.PADDLE_CLIENT_TOKEN || '').trim() || null;
+const PADDLE_API_KEY = (process.env.PADDLE_API_KEY || '').trim() || null;
+
+function getPaddleApiBase() {
+  if (!PADDLE_API_KEY) return null;
+  return PADDLE_API_KEY.startsWith('test_') ? 'https://sandbox-api.paddle.com' : 'https://api.paddle.com';
+}
 
 // API routes before static so they are never served as files
 app.get('/api/config', (req, res) => {
@@ -267,6 +273,29 @@ app.put('/api/admin/products/:id', requireAuth, (req, res) => {
   const { name_ar, name_en, emoji, category, price, description, image_url, sort_order, paddle_price_id, preview_links, images, variants } = req.body || {};
   const db = getDb();
   if (!db) return res.status(500).json({ error: 'Database not available' });
+  const existing = db.prepare('SELECT id, paddle_price_id FROM products WHERE id = ?').get(id);
+  if (!existing) {
+    db.close();
+    return res.status(404).json({ error: 'Product not found' });
+  }
+  const currentPaddleId = typeof existing.paddle_price_id === 'string' ? existing.paddle_price_id.trim() : '';
+  let nextPaddleId = null; // COALESCE(null, paddle_price_id) keeps existing value
+  if (paddle_price_id !== undefined) {
+    const requestedPaddleId = typeof paddle_price_id === 'string' ? paddle_price_id.trim() : '';
+    // Guard against accidental wipe from empty/null payloads.
+    if (requestedPaddleId) {
+      if (!requestedPaddleId.startsWith('pri_')) {
+        db.close();
+        return res.status(400).json({ error: 'Invalid Paddle price ID format' });
+      }
+      // Write-once behavior: once set, Paddle ID cannot be changed in normal edits.
+      if (currentPaddleId && requestedPaddleId !== currentPaddleId) {
+        db.close();
+        return res.status(400).json({ error: 'Paddle price ID is locked and cannot be changed from admin edits' });
+      }
+      nextPaddleId = requestedPaddleId;
+    }
+  }
   const imagesJson = images !== undefined ? JSON.stringify(Array.isArray(images) ? images : (typeof images === 'string' ? images.split(/\r?\n/).map(s => s.trim()).filter(Boolean) : [])) : undefined;
   const variantsJson = variants !== undefined ? JSON.stringify(Array.isArray(variants) ? variants : (typeof variants === 'string' ? variants.split(/\r?\n/).map(s => s.trim()).filter(Boolean) : [])) : undefined;
   db.prepare(`
@@ -280,7 +309,7 @@ app.put('/api/admin/products/:id', requireAuth, (req, res) => {
       sort_order = COALESCE(?, sort_order),
       paddle_price_id = COALESCE(?, paddle_price_id)
     WHERE id = ?
-  `).run(name_ar ?? null, name_en ?? null, emoji ?? null, category ?? null, price ?? null, description ?? null, sort_order ?? null, paddle_price_id ?? null, id);
+  `).run(name_ar ?? null, name_en ?? null, emoji ?? null, category ?? null, price ?? null, description ?? null, sort_order ?? null, nextPaddleId, id);
   if (image_url !== undefined) {
     db.prepare('UPDATE products SET image_url = ? WHERE id = ?').run(image_url || null, id);
   }
@@ -302,6 +331,10 @@ app.post('/api/admin/products', requireAuth, (req, res) => {
   if (!name_ar || !name_en || !emoji || !category) {
     return res.status(400).json({ error: 'name_ar, name_en, emoji, category required' });
   }
+  const normalizedPaddleId = typeof paddle_price_id === 'string' ? paddle_price_id.trim() : '';
+  if (normalizedPaddleId && !normalizedPaddleId.startsWith('pri_')) {
+    return res.status(400).json({ error: 'Invalid Paddle price ID format' });
+  }
   const db = getDb();
   if (!db) return res.status(500).json({ error: 'Database not available' });
   const imagesArr = Array.isArray(images) ? images : (typeof images === 'string' ? images.split(/\r?\n/).map(s => s.trim()).filter(Boolean) : []);
@@ -311,13 +344,13 @@ app.post('/api/admin/products', requireAuth, (req, res) => {
   const result = db.prepare(`
     INSERT INTO products (name_ar, name_en, emoji, category, price, description, image_url, sort_order, paddle_price_id, preview_links, images, variants)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(name_ar, name_en, emoji, category, price ?? 0, description ?? null, image_url ?? null, sort_order ?? 0, paddle_price_id || null, preview_links || null, imagesJson, variantsJson);
+  `).run(name_ar, name_en, emoji, category, price ?? 0, description ?? null, image_url ?? null, sort_order ?? 0, normalizedPaddleId || null, preview_links || null, imagesJson, variantsJson);
   db.close();
   res.json({ id: result.lastInsertRowid, success: true });
 });
 
 app.post('/api/orders', (req, res) => {
-  const { customer_name, customer_email, items, status, payment_provider, payment_id } = req.body || {};
+  const { customer_name, customer_email, items } = req.body || {};
   if (!customer_name || !customer_email || !items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'customer_name, customer_email, and items[] required' });
   }
@@ -338,13 +371,76 @@ app.post('/api/orders', (req, res) => {
   }
   const total = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
   const initials = customer_name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
-  const safeStatus = status && typeof status === 'string' ? status : 'pending';
-  const safeProvider = payment_provider && typeof payment_provider === 'string' ? payment_provider : null;
-  const safePaymentId = payment_id && typeof payment_id === 'string' ? payment_id : null;
+  // Public checkout orders are always created as pending.
+  // Paid status must never be trusted from client-side input.
+  const safeStatus = 'pending';
+  const safeProvider = null;
+  const safePaymentId = null;
   const result = db.prepare(`INSERT INTO orders (customer_name, customer_email, customer_initials, items, total, payment_provider, payment_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
     .run(customer_name, customer_email, initials, JSON.stringify(orderItems), total, safeProvider, safePaymentId, safeStatus);
   db.close();
   res.json({ success: true, order_id: result.lastInsertRowid, initials, total });
+});
+
+app.post('/api/orders/confirm-paddle', async (req, res) => {
+  const { order_id, transaction_id } = req.body || {};
+  const orderId = parseInt(order_id, 10);
+  const transactionId = typeof transaction_id === 'string' ? transaction_id.trim() : '';
+  if (!orderId || !transactionId) {
+    return res.status(400).json({ error: 'order_id and transaction_id are required' });
+  }
+
+  const paddleApiBase = getPaddleApiBase();
+  if (!paddleApiBase) {
+    return res.status(503).json({ error: 'PADDLE_API_KEY is required to confirm paid orders securely' });
+  }
+
+  let txData = null;
+  try {
+    const txRes = await fetch(`${paddleApiBase}/transactions/${encodeURIComponent(transactionId)}`, {
+      headers: {
+        Authorization: `Bearer ${PADDLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!txRes.ok) {
+      const msg = await txRes.text();
+      return res.status(502).json({ error: `Paddle verification failed (${txRes.status}): ${msg}` });
+    }
+    const txJson = await txRes.json();
+    txData = txJson && txJson.data ? txJson.data : null;
+  } catch (err) {
+    return res.status(502).json({ error: `Paddle verification error: ${err && err.message ? err.message : 'unknown'}` });
+  }
+
+  const txStatus = txData && typeof txData.status === 'string' ? txData.status : '';
+  if (!txData || txData.id !== transactionId || txStatus !== 'completed') {
+    return res.status(400).json({ error: 'Transaction is not completed or could not be validated' });
+  }
+
+  const db = getDb();
+  if (!db) return res.status(500).json({ error: 'Database not available' });
+
+  const order = db.prepare('SELECT id, status FROM orders WHERE id = ?').get(orderId);
+  if (!order) {
+    db.close();
+    return res.status(404).json({ error: 'Order not found' });
+  }
+
+  if (order.status === 'paid') {
+    db.close();
+    return res.json({ success: true, order_id: orderId, status: 'paid' });
+  }
+
+  db.prepare(`
+    UPDATE orders
+    SET status = 'paid',
+        payment_provider = 'paddle',
+        payment_id = ?
+    WHERE id = ?
+  `).run(transactionId, orderId);
+  db.close();
+  res.json({ success: true, order_id: orderId, status: 'paid' });
 });
 
 app.get('/api/admin/orders', requireAuth, (req, res) => {
@@ -381,4 +477,5 @@ const HOST = process.env.HOST || '0.0.0.0';
 app.listen(PORT, HOST, () => {
   console.log(`AE Graphics Store running at http://${HOST}:${PORT}`);
   console.log(PADDLE_CLIENT_TOKEN ? 'Paddle: configured' : 'Paddle: not configured (add PADDLE_CLIENT_TOKEN to .env and restart)');
+  console.log(PADDLE_API_KEY ? 'Paddle API: configured' : 'Paddle API: not configured (add PADDLE_API_KEY for secure paid-order verification)');
 });

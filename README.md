@@ -21,19 +21,19 @@ A graphics selling store with a customizable admin dashboard.
 
 4. Open in browser:
    - **Store:** http://localhost:3000
-   - **Admin:** `*******`
+   - **Admin:** http://localhost:3000/admin
 
 ## Admin login
 
 - **Username:** `admin`
-- **Password:** `*******`
+- **Password:** `BOESSAtest`
 
 Change the password after first login via **Admin → Change password**.
 
 ## Features
 
 - **Store:** All packages listed in two sections (General, FiveM) with prices. Add to cart, then **Checkout** to pay or place an order.
-- **Payments (Paddle):** When all cart items have a **Paddle price ID** (`pri_...`) set in Admin, checkout opens **Paddle Checkout (overlay)**. After `checkout.completed`, the store saves an order marked `paid` with the Paddle transaction ID.
+- **Payments (Paddle):** When all cart items have a **Paddle price ID** (`pri_...`) set in Admin, checkout opens **Paddle Checkout (overlay)**. After `checkout.completed`, the store creates a pending order, then confirms payment server-side using the Paddle transaction ID and marks it `paid`.
 - **Cart & checkout:** Add to cart from the store or product page. At checkout you enter name and email, then pay via Paddle.
 - **Admin dashboard:** Sign in, edit products (name, price, category, description, Paddle price ID), add/delete products, change admin password, log out.
 
@@ -53,15 +53,15 @@ The app reads variables from a **`.env`** file in the project root (and from you
   ```
   Then edit `.env` with your values. See **`.env.example`** for the list of supported variables.
 
-- **Current variables:** `PORT`, `SQLITE_DB_PATH`, `SESSION_SECRET`, `PADDLE_CLIENT_TOKEN`. The server loads `.env` on start via `dotenv`.
+- **Current variables:** `PORT`, `SQLITE_DB_PATH`, `SESSION_SECRET`, `PADDLE_CLIENT_TOKEN`, `PADDLE_API_KEY`. The server loads `.env` on start via `dotenv`.
 
 ## Paddle (full payment)
 
 1. Include Paddle products and prices in your Paddle dashboard. For each item you sell, you’ll need a **Price ID** (`pri_...`).
 2. Create a **client-side token** in Paddle dashboard → **Developer tools → Authentication**. Tokens start with `test_` (sandbox) or `live_` (production).
-3. Set `PADDLE_CLIENT_TOKEN` in `.env`.
+3. Set `PADDLE_CLIENT_TOKEN` and `PADDLE_API_KEY` in `.env`.
 4. In **Admin → Edit product**, set **Paddle price ID** to the matching `pri_...`.
-5. In the store, add products to cart → **Checkout** → **Pay with Paddle**. On successful payment, `checkout.completed` triggers saving the order in the store with `payment_provider=paddle` and the Paddle transaction ID.
+5. In the store, add products to cart → **Checkout** → **Pay with Paddle**. On successful payment, `checkout.completed` triggers order creation and secure transaction verification; when verification succeeds, the order is saved as `paid` with `payment_provider=paddle` and the Paddle transaction ID.
 
 ## Making the website live
 

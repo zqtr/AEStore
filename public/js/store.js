@@ -64,17 +64,40 @@ async function handlePaddleEvent(evt) {
           customer_name: pending.name,
           customer_email: pending.email,
           items: pending.items,
-          status: 'paid',
-          payment_provider: 'paddle',
-          payment_id: paymentId,
         }),
       });
       const orderData = await orderRes.json();
       if (!orderRes.ok) throw new Error(orderData.error || 'SAVE FAILED');
+
+      let isPaid = false;
+      let extraNote = '';
+      if (paymentId) {
+        const confirmRes = await fetch('/api/orders/confirm-paddle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: orderData.order_id,
+            transaction_id: paymentId,
+          }),
+        });
+        if (confirmRes.ok) {
+          isPaid = true;
+        } else {
+          const confirmData = await confirmRes.json().catch(() => ({}));
+          extraNote = (confirmData && confirmData.error)
+            ? confirmData.error
+            : 'Payment completed, but order verification is still pending.';
+        }
+      } else {
+        extraNote = 'Payment completed, but transaction ID was not available for verification.';
+      }
+
       showOrderSuccess({
         order_id: orderData.order_id,
         initials: orderData.initials,
         total: orderData.total,
+        paid: isPaid,
+        note: extraNote,
       });
     } catch (e) {
       const errEl = document.getElementById('co-error');
@@ -312,6 +335,13 @@ function showCheckoutForm() {
         </div>
       </div>
       <div id="co-error" class="error-msg hidden"></div>
+      <label style="display:flex; gap:0.5rem; align-items:flex-start; margin:0.9rem 0; font-size:0.95rem; line-height:1.4;">
+        <input type="checkbox" id="co-consent" style="margin-top:0.2rem;">
+        <span>
+          أوافق على <a href="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a>
+          و <a href="/refunds" target="_blank" rel="noopener noreferrer">سياسة الاسترجاع</a>.
+        </span>
+      </label>
       <button type="button" class="btn-submit" id="btn-pay-paddle" ${isReady ? '' : 'disabled'}>الدفع</button>
       <button type="button" class="btn-close-modal" id="btn-cancel-co">[ إلغاء ]</button>
     </form>
@@ -338,8 +368,13 @@ async function handlePaddleCheckout() {
     if (errEl) { errEl.textContent = 'أدخل الاسم والبريد الإلكتروني'; errEl.classList.remove('hidden'); }
     return;
   }
+  const consentEl = document.getElementById('co-consent');
+  if (!consentEl || !consentEl.checked) {
+    if (errEl) { errEl.textContent = 'يجب الموافقة على الشروط وسياسة الاسترجاع قبل الدفع'; errEl.classList.remove('hidden'); }
+    return;
+  }
   if (!allItemsHavePaddlePrice()) {
-    if (errEl) { errEl.textContent = ''; errEl.classList.remove('hidden'); }
+    if (errEl) { errEl.textContent = 'بعض المنتجات لا تحتوي Paddle Price ID'; errEl.classList.remove('hidden'); }
     return;
   }
   if (payBtn) payBtn.disabled = true;
@@ -388,9 +423,10 @@ function showOrderSuccess(order) {
 
   checkoutContent.innerHTML = `
     <div style="text-align:center;padding:1.5rem 0">
-      <h2 style="margin-bottom:0.5rem;color:var(--success);">تم الطلب بنجاح</h2>
+      <h2 style="margin-bottom:0.5rem;color:var(--success);">${order.paid ? 'تم الدفع بنجاح' : 'تم إنشاء الطلب بنجاح'}</h2>
       <p class="subtitle">رقم الطلب: ${order.order_id}</p>
       <p style="color:var(--white);font-size:1.2rem;margin-bottom:1.5rem">المجموع: <strong>QAR ${Number(order.total).toFixed(2)}</strong></p>
+      ${order.note ? `<p style="color:var(--text-secondary);font-size:0.92rem;margin:-0.7rem 0 1.2rem">${escapeAttr(order.note)}</p>` : ''}
       <button class="btn-submit" id="btn-close-success" style="margin-bottom:0.5rem">متابعة</button>
     </div>
   `;
